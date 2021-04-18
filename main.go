@@ -7,7 +7,9 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strconv"
 
+	tgbotapi "github.com/Syfaro/telegram-bot-api"
 	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
 )
@@ -32,7 +34,7 @@ type responseMessage struct {
 }
 
 var (
-	Data = &jsonDB{}
+	Data   = &jsonDB{}
 )
 
 func getEnv(key string) string {
@@ -74,6 +76,7 @@ func handleSend(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 	}
 	json.NewEncoder(w).Encode(response)
+	fmt.Println("new req with response: ", response)
 }
 
 func getPaylod(message messageDB) responseMessage {
@@ -87,15 +90,29 @@ func getPaylod(message messageDB) responseMessage {
 		response.Message = "No required field - message"
 		response.Success = false
 	}
+	if response.Success {
+		sendMessage(message.Message, message.Ids)
+	}
 	return response
+}
+
+func sendMessage(message string, users []string) {
+	for i := range users {
+		bot, err := tgbotapi.NewBotAPI(getEnv("telegram_id"))
+		if err != nil {
+			log.Panic(err)
+		}
+		idChat, _ := strconv.ParseInt(users[i], 10, 64)
+		msg := tgbotapi.NewMessage(idChat, "Message from Notitication API:\n" +message)
+		bot.Send(msg)
+	}
 }
 
 func main() {
 	r := mux.NewRouter()
 	dotenv := env{idBot: getEnv("telegram_id"), port: getEnv("port")}
-	fmt.Println(dotenv.idBot)
 	Data = loadConfig()
-	fmt.Println(Data.Ids)
 	r.HandleFunc("/notify/send", handleSend).Methods("POST")
+	fmt.Println("Server listen", dotenv.port)
 	log.Fatal(http.ListenAndServe(":"+dotenv.port, r))
 }
