@@ -21,6 +21,17 @@ curl -XPOST -H "Content-type: application/json" -d '{"message" : "test Message",
 response: {"Success": true, "Message": "Message sended"}
 ```
 
+## API
+
+```
+http://localhost:8080/notify/send 
+Params: {
+    message string,
+    Ids? [] string
+}
+!message => response status 400
+```
+
 # Donate:
 
     BTC:  192TC7d7ZRYJQbQnAWvMpkccnBNQN1ae6R
