@@ -1,3 +1,10 @@
+/**
+	* hope it helps u 							* 
+	* By Nikita Vtorushin<n.vtorushin@inbox.ru> *
+	* @nikitavoryet 							*
+	* Telegram Notification GoLang				*
+**/
+
 package main
 
 import (
